@@ -1,15 +1,28 @@
 #include <cstdint>
-#include <vector>
+#include <fstream>
 
-// Create an index register, program counter, and stack
-struct Chip8 {
-    // Create memory  size of 4kB
-    uint8_t memory[4096];
-    // Create timers
-    unsigned int delay_timer;
-    unsigned int sound_timer;
-    // Create stack
-    unsigned char stk[];
+const unsigned int START_ADDRESS = 0x200;
+
+class Chip8 {
+    public:
+        uint8_t memory[4096]{};
+        uint8_t PC{};
+        uint8_t delayTimer{};
+        uint8_t soundTimer{};
+        uint8_t keypad[16]{};
+        uint8_t sp{};
+        uint16_t stack[16]{};
+        uint16_t index{};
+        uint16_t opcode{};
+        uint32_t display[64 * 32]{};
+
+        Chip8() {
+            PC = START_ADDRESS;
+        }
+
+        void LoadROM(char const* filename);
+
+
 };
 
 unsigned char font[80]
@@ -31,3 +44,23 @@ unsigned char font[80]
     0xF0, 0x80, 0xF0, 0x80, 0xF0, //E
     0xF0, 0x80, 0xF0, 0x80, 0x80  //F
 };
+
+void Chip8::LoadROM(char const* filename) {
+
+    std::fstream file(filename, std::ios::binary | std::ios::ate);
+
+    if (file.is_open()) {
+        const int size = file.tellg();
+        char* buffer = new char[size];
+
+        file.seekg(0, std::ios::beg);
+        file.read(buffer, size);
+        file.close();
+
+        for (long i = 0; i < size; i++) {
+            memory[START_ADDRESS + i] = buffer[i];
+        }
+
+        delete[] buffer;
+    }
+}
