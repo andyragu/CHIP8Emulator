@@ -1,31 +1,12 @@
 #include <cstdint>
+#include <cstring>
 #include <fstream>
 
 const unsigned int START_ADDRESS = 0x200;
+const unsigned int FONT_ADDRESS = 0x50;
 
-class Chip8 {
-    public:
-        uint8_t memory[4096]{};
-        uint8_t PC{};
-        uint8_t delayTimer{};
-        uint8_t soundTimer{};
-        uint8_t keypad[16]{};
-        uint8_t sp{};
-        uint16_t stack[16]{};
-        uint16_t index{};
-        uint16_t opcode{};
-        uint32_t display[64 * 32]{};
-
-        Chip8() {
-            PC = START_ADDRESS;
-        }
-
-        void LoadROM(char const* filename);
-
-
-};
-
-unsigned char font[80]
+const int FONT_SIZE { 80 };
+unsigned char font[FONT_SIZE]
 {
     0xF0, 0x90, 0x90, 0x90, 0xF0, //0
     0x20, 0x60, 0x20, 0x20, 0x70, //1
@@ -43,6 +24,33 @@ unsigned char font[80]
     0xE0, 0x90, 0x90, 0x90, 0xE0, //D
     0xF0, 0x80, 0xF0, 0x80, 0xF0, //E
     0xF0, 0x80, 0xF0, 0x80, 0x80  //F
+};
+
+class Chip8 {
+    public:
+        uint8_t memory[4096]{};
+        uint8_t PC{};
+        uint8_t delayTimer{};
+        uint8_t soundTimer{};
+        uint8_t keypad[16]{};
+        uint8_t sp{};
+        uint16_t stack[16]{};
+        uint16_t index{};
+        uint16_t opcode{};
+        uint32_t display[64 * 32]{};
+
+        Chip8() {
+            PC = START_ADDRESS;
+
+            for (int i = 0; i < FONT_SIZE; i++) {
+                memory[FONT_ADDRESS + i] = font[i];
+            }
+        }
+
+        void LoadROM(char const* filename);
+
+        // Instructions
+        void OP_00E0();
 };
 
 void Chip8::LoadROM(char const* filename) {
@@ -63,4 +71,9 @@ void Chip8::LoadROM(char const* filename) {
 
         delete[] buffer;
     }
+}
+
+// Clear display
+void Chip8::OP_00E0() {
+    memset(display, 0, sizeof(display));
 }
