@@ -34,6 +34,7 @@ class Chip8 {
         uint8_t soundTimer{};
         uint8_t keypad[16]{};
         uint8_t sp{};
+        uint8_t registers[16]{};
         uint16_t stack[16]{};
         uint16_t index{};
         uint16_t opcode{};
@@ -55,6 +56,8 @@ class Chip8 {
         void OP_2NNN();
 
         void OP_00EE();
+
+        void OP_3XKK();
 };
 
 void Chip8::LoadROM(char const* filename) {
@@ -103,4 +106,16 @@ void Chip8::OP_2NNN() {
 void Chip8::OP_00EE() {
     sp--;
     PC = stack[sp];
+}
+
+// Skip next instruction if Vx = kk.
+void Chip8::OP_3XKK() {
+    // kk or byte - An 8-bit value, the lowest 8 bits of the instruction
+    // Chip-8 has 16 general purpose 8-bit registers, usually referred to as Vx, where x is a hexadecimal digit (0 through F)
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode && 0x00FFu;
+
+    if (registers[Vx] == byte) {
+        PC += 2;
+    }
 }
