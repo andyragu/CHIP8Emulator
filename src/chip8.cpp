@@ -2,10 +2,10 @@
 #include <cstring>
 #include <fstream>
 
-const unsigned int START_ADDRESS = 0x200;
-const unsigned int FONT_ADDRESS = 0x50;
+constexpr unsigned int START_ADDRESS { 0x200 };
+constexpr unsigned int FONT_ADDRESS { 0x50 };
 
-const int FONT_SIZE { 80 };
+constexpr int FONT_SIZE { 80 };
 unsigned char font[FONT_SIZE]
 {
     0xF0, 0x90, 0x90, 0x90, 0xF0, //0
@@ -51,6 +51,10 @@ class Chip8 {
 
         // Instructions
         void OP_00E0();
+        void OP_1NNN();
+        void OP_2NNN();
+
+        void OP_00EE();
 };
 
 void Chip8::LoadROM(char const* filename) {
@@ -76,4 +80,27 @@ void Chip8::LoadROM(char const* filename) {
 // Clear display
 void Chip8::OP_00E0() {
     memset(display, 0, sizeof(display));
+}
+
+// Jump
+void Chip8::OP_1NNN() {
+    uint16_t address = opcode & 0x0FFFu;
+
+    PC = address;
+}
+
+// Calls subroutine
+void Chip8::OP_2NNN() {
+    uint16_t address = opcode & 0x0FFFu;
+
+    stack[sp] = PC;
+    sp++;
+
+    PC = address;
+}
+
+// Return from subroutine
+void Chip8::OP_00EE() {
+    sp--;
+    PC = stack[sp];
 }
