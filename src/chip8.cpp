@@ -58,6 +58,16 @@ class Chip8 {
         void OP_00EE();
 
         void OP_3XKK();
+
+        void OP_4XKK();
+
+        void OP_5XY0();
+
+        void OP_6XKK();
+
+        void OP_7XKK();
+
+        void OP_8XY0();
 };
 
 void Chip8::LoadROM(char const* filename) {
@@ -113,9 +123,48 @@ void Chip8::OP_3XKK() {
     // kk or byte - An 8-bit value, the lowest 8 bits of the instruction
     // Chip-8 has 16 general purpose 8-bit registers, usually referred to as Vx, where x is a hexadecimal digit (0 through F)
     uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-    uint8_t byte = opcode && 0x00FFu;
+    uint8_t byte = opcode & 0x00FFu;
 
     if (registers[Vx] == byte) {
         PC += 2;
     }
+}
+
+void Chip8::OP_4XKK() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    if (registers[Vx] != byte) {
+        PC += 2;
+    }
+}
+
+void Chip8::OP_5XY0() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    if (registers[Vx] == registers[Vy]) {
+        PC += 2;
+    }
+}
+
+void Chip8::OP_6XKK() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    registers[Vx] = byte;
+}
+
+void Chip8::OP_7XKK() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t byte = opcode & 0x00FFu;
+
+    registers[Vx] = byte + Vx;
+}
+
+void Chip8::OP_8XY0() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] = registers[Vy];
 }
