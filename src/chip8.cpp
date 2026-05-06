@@ -68,6 +68,12 @@ class Chip8 {
         void OP_7XKK();
 
         void OP_8XY0();
+
+        void OP_8XY1();
+
+        void OP_8XY3();
+
+        void OP_8XY4();
 };
 
 void Chip8::LoadROM(char const* filename) {
@@ -167,4 +173,33 @@ void Chip8::OP_8XY0() {
     uint8_t Vy = (opcode & 0x00F0u) >> 4u;
 
     registers[Vx] = registers[Vy];
+}
+
+void Chip8::OP_8XY1() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] = registers[Vx] | registers[Vy];
+}
+
+void Chip8::OP_8XY3() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    registers[Vx] = registers[Vx] ^ registers[Vy];
+}
+
+void Chip8::OP_8XY4() {
+    uint8_t Vx = (opcode & 0x0F00u) >> 8u;
+    uint8_t Vy = (opcode & 0x00F0u) >> 4u;
+
+    uint16_t sum = registers[Vx] + registers[Vy];
+
+    if (registers[Vx] > 255U) {
+        registers[0xF] = 1;
+    } else {
+        registers[0xF] = 0;
+    }
+
+    registers[Vx] = sum & 0xFFu;
 }
